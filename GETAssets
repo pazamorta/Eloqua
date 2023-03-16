@@ -1,0 +1,40 @@
+import requests
+
+# Eloqua API credentials
+base_url = "https://secure.p01.eloqua.com/api/REST/2.0/"
+site_id = "<your site ID>"
+client_id = "<your client ID>"
+client_secret = "<your client secret>"
+auth_url = f"{base_url}auth/oauth2/token"
+api_url = f"{base_url}assets"
+
+# Authenticate with the Eloqua API
+auth_data = {
+    "grant_type": "client_credentials",
+    "scope": "full"
+}
+auth_response = requests.post(auth_url, auth=(client_id, client_secret), data=auth_data)
+access_token = auth_response.json()["access_token"]
+headers = {"Authorization": f"Bearer {access_token}"}
+
+# Extract all assets in subfolders recursively
+def extract_subfolders(folder_id):
+    # Extract all assets in the current folder
+    api_params = {"folderId": folder_id, "search": "*"}
+    api_response = requests.get(api_url, headers=headers, params=api_params)
+    assets = api_response.json()["elements"]
+    for asset in assets:
+        # Do something with the asset (e.g. extract data or metadata)
+        print(asset)
+
+    # Extract all subfolders in the current folder
+    api_params = {"folderId": folder_id, "depth": "complete"}
+    api_response = requests.get(api_url + "/folders", headers=headers, params=api_params)
+    subfolders = api_response.json()["elements"]
+    for subfolder in subfolders:
+        # Recursively extract all assets in the subfolder
+        extract_subfolders(subfolder["id"])
+
+# Extract all subfolders and assets in the parent folder
+parent_folder_id = <your parent folder ID>
+extract_subfolders(parent_folder_id)
