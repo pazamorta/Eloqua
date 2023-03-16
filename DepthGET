@@ -1,0 +1,3 @@
+To retrieve all assets in subfolders, set the depth parameter in the request URL to complete. For example
+
+GET /api/REST/2.0/assets/folder/{folderId}?depth=complete
